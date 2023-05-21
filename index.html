@@ -6,6 +6,10 @@
     <body oncontextmenu="return false;">
     <title>PokeRunGame</title>
     <style>
+        body {
+            overflow: hidden;
+        }
+
         #player {
             position: absolute;
             width: 50px;
@@ -39,7 +43,7 @@
     </style>
 </head>
 
-<body ontouchmove="event.preventDefault();">
+<body>
     <img id="player" src="" alt="Player">
     <div id="score">Score: 0</div>
     <div class="container">
