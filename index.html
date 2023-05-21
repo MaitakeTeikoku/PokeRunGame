@@ -2,7 +2,7 @@
 <html lang="ja">
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"">
+    <meta name="viewport" content="width=device-width">
     <title>PokeRunGame</title>
     <style>
         body {
@@ -42,8 +42,12 @@
     </style>
 </head>
 
-<body oncontextmenu=" return false;">
+<body oncontextmenu="return false;">
     <img id="player" src="" alt="Player">
+    <div id="position-container">
+        <span id="x-position"></span>
+        <span id="y-position"></span>
+    </div>
     <div id="score">Score: 0</div>
     <div class="container">
         <button id="startButton" onclick="startGame();">Start</button>
@@ -63,42 +67,80 @@
         var obstacleMaxDelay = 10000; // 障害物が出現する最大遅延時間（ミリ秒）
         var obstacleMinRate = 0.1; // 障害物の最小サイズ
         var obstacleMaxRate = 0.3; // 障害物の最大サイズ
-        // タッチイベントの処理
-        var touchStartX = 0;
-        var touchStartY = 0;
-        var screenWidth = window.innerWidth;
-        var screenHeight = window.innerHeight;
 
 
+        function handleMouseMove(event) {
+            if (gameRunning) {
+                playerX = event.clientX - 25; // プレイヤーのX座標をマウス位置に設定
+                playerY = event.clientY - 25; // プレイヤーのY座標をマウス位置に設定
+                updatePlayerPosition(); // プレイヤーの位置を更新
+                checkCollision();
+            }
+        }
 
         function handleTouchMove(event) {
             event.preventDefault(); // デフォルトのスクロール動作を無効化
 
             if (gameRunning) {
                 var touch = event.touches[0];
-                playerX = touch.clientX - 25; // 移動先のX座標を取得
-                playerY = touch.clientY - 25; // 移動先のY座標を取得
-                updatePlayerPosition(); // プレイヤーの位置を更新
-                checkCollision();
+                var targetX = touch.clientX - 25; // 移動先のX座標を取得
+                var targetY = touch.clientY - 25; // 移動先のY座標を取得
+
+                movePlayerSmoothly(targetX, targetY); // 滑らかな移動関数を呼び出す
             }
         }
 
-        function updatePlayerPosition() {
-            var playerElement = document.getElementById('player');
-            // プレイヤーのX座標を制限
-            if (playerX < 0) {
-                playerX = 0;
-            } else if (playerX > window.innerWidth - 50) {
-                playerX = window.innerWidth - 50;
+        function movePlayerSmoothly(targetX, targetY) {
+            var player = document.getElementById("player");
+            var playerWidth = player.offsetWidth;
+            var playerHeight = player.offsetHeight;
+            var offsetX = playerWidth / 2; // Playerの中心座標を指の位置からオフセット
+            var offsetY = playerHeight / 2; // Playerの中心座標を指の位置からオフセット
+            var startX = playerX + offsetX; // 現在のX座標（中心座標）
+            var startY = playerY + offsetY; // 現在のY座標（中心座標）
+            var distanceX = targetX - startX; // 移動量のX成分
+            var distanceY = targetY - startY; // 移動量のY成分
+            var duration = 0; // 移動の所要時間（ミリ秒）
+            var startTime = null;
+
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                var elapsedTime = timestamp - startTime;
+                var progress = Math.min(elapsedTime / duration, 1); // 進行度（0～1）
+                var easeProgress = easeInOutQuad(progress); // イージング関数を適用
+
+                var offsetXProgress = distanceX * easeProgress; // X座標の進行度に応じたオフセット
+                var offsetYProgress = distanceY * easeProgress; // Y座標の進行度に応じたオフセット
+
+                playerX = targetX - offsetXProgress - offsetX; // イージングを考慮したX座標を計算
+                playerY = targetY - offsetYProgress - offsetY; // イージングを考慮したY座標を計算
+
+                updatePlayerPosition(); // プレイヤーの位置を更新
+                checkCollision();
+
+                if (progress < 1) {
+                    requestAnimationFrame(step); // 次のステップを実行
+                } else {
+                    // 移動が完了したら最終位置を設定
+                    playerX = targetX - offsetX;
+                    playerY = targetY - offsetY;
+                    updatePlayerPosition();
+                }
             }
 
-            // プレイヤーのY座標を制限
-            if (playerY < 0) {
-                playerY = 0;
-            } else if (playerY > window.innerHeight - 50) {
-                playerY = window.innerHeight - 50;
-            }
-            playerElement.style.transform = 'translate(' + playerX + 'px, ' + playerY + 'px)';
+            requestAnimationFrame(step); // 最初のステップを実行
+        }
+
+        // イージング関数
+        function easeInOutQuad(t) {
+            // t: 0～1の進行度
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        }
+
+        function updatePlayerPosition() {
+            var player = document.getElementById("player");
+            player.style.left = playerX + "px";
+            player.style.top = playerY + "px";
         }
 
         function createObstacle() {
@@ -144,6 +186,11 @@
         function checkCollision() {
             var player = document.getElementById("player");
             var playerRect = player.getBoundingClientRect();
+            // 位置情報を表示する要素に反映
+            var xPositionElement = document.getElementById('x-position');
+            var yPositionElement = document.getElementById('y-position');
+            xPositionElement.textContent = 'left: ' + playerRect.left;
+            yPositionElement.textContent = 'top: ' + playerRect.top;
 
             for (var i = 0; i < obstacles.length; i++) {
                 var obstacle = obstacles[i];
@@ -221,6 +268,8 @@
                 score = 0;
                 // タッチイベントを登録
                 document.addEventListener("touchmove", handleTouchMove);
+                // マウスイベントリスナーとしてhandleMouseMove関数を登録
+                document.addEventListener("mousemove", handleMouseMove);
 
                 document.getElementById("score").textContent = "Score: " + score;
                 document.getElementById("startButton").disabled = true;
@@ -258,34 +307,7 @@
 
 
         document.getElementById("player").style.display = "none";
-
-        document.addEventListener('touchstart', function (event) {
-            touchStartX = event.touches[0].clientX;
-            touchStartY = event.touches[0].clientY;
-        });
-
-        document.addEventListener('touchmove', function (event) {
-            event.preventDefault(); // デフォルトのスクロール動作を禁止
-
-            var touchMoveX = event.touches[0].clientX;
-            var touchMoveY = event.touches[0].clientY;
-
-            // 移動量の計算
-            var deltaX = touchMoveX - touchStartX;
-            var deltaY = touchMoveY - touchStartY;
-
-            // プレイヤーの新しい位置
-            playerX += deltaX;
-            playerY += deltaY;
-
-            // プレイヤー位置の更新
-            updatePlayerPosition();
-
-            // タッチ開始位置の更新
-            touchStartX = touchMoveX;
-            touchStartY = touchMoveY;
-        });
     </script>
-    </body>
+</body>
 
 </html>
