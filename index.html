@@ -294,6 +294,9 @@
         }
 
         function gameOver() {
+            if (!gameRunning) {
+                return; // ゲームが既に終了している場合は処理を中断する
+            }
             gameRunning = false;
             gameInterval = null; // ゲームループのインターバルをリセット
             cancelAnimationFrame(gameInterval);
