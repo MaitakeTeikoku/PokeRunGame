@@ -42,31 +42,25 @@
 
         window.addEventListener("devicemotion", handleMotionEvent, true);
 
-        document.addEventListener("touchstart", function () {
-            if (typeof DeviceMotionEvent.requestPermission === "function") {
-                DeviceMotionEvent.requestPermission()
-                    .then(function (permissionState) {
-                        if (permissionState === "granted") {
-                            window.addEventListener("devicemotion", handleMotionEvent, true);
-                        }
-                    })
-                    .catch(console.error);
-            } else {
-                window.addEventListener("devicemotion", handleMotionEvent, true);
-            }
-        });
-
         function handleMotionEvent(event) {
             if (gameRunning) {
                 var acceleration = event.accelerationIncludingGravity;
 
-                playerX += acceleration.x;
-                playerY += acceleration.y;
-
-                document.getElementById("player").style.left = playerX + "px";
-                document.getElementById("player").style.top = playerY + "px";
+                var touch = event.touches[0];
+                playerX = touch.clientX - 25; // プレイヤーのX座標をタッチ位置に設定
+                playerY = touch.clientY - 25; // プレイヤーのY座標をタッチ位置に設定
 
                 checkCollision();
+            }
+        }
+
+        function handleTouchMove(event) {
+            event.preventDefault(); // デフォルトのスクロール動作を無効化
+
+            if (gameRunning) {
+                var touch = event.touches[0];
+                playerX = touch.clientX - 25; // プレイヤーのX座標をタッチ位置に設定
+                playerY = touch.clientY - 25; // プレイヤーのY座標をタッチ位置に設定
             }
         }
 
@@ -163,9 +157,10 @@
 
         function startGame() {
             if (!gameRunning) {
-                // 既にモーションイベントが登録されている場合は削除する
-                window.removeEventListener("devicemotion", handleMotionEvent, true);
                 gameRunning = true;
+                // タッチイベントを登録
+                document.addEventListener("touchstart", handleTouchStart);
+                document.addEventListener("touchmove", handleTouchMove);
                 score = 0;
                 document.getElementById("score").textContent = "Score: " + score;
                 document.getElementById("startButton").disabled = true;
