@@ -182,21 +182,11 @@
 
         function checkCollision() {
             var player = document.getElementById("player");
-            var playerRect = {
-                    left: player.offsetLeft,
-                    top: player.offsetTop,
-                    right: player.offsetLeft + player.offsetWidth,
-                    bottom: player.offsetTop + player.offsetHeight
-                };
+            var playerRect = player.getBoundingClientRect();
 
             for (var i = 0; i < obstacles.length; i++) {
                 var obstacle = obstacles[i];
-                var obstacleRect = {
-                    left: obstacle.offsetLeft,
-                    top: obstacle.offsetTop,
-                    right: obstacle.offsetLeft + obstacle.offsetWidth,
-                    bottom: obstacle.offsetTop + obstacle.offsetHeight
-                };
+                var obstacleRect = obstacle.getBoundingClientRect();
 
                 if (playerRect.left < obstacleRect.right &&
                     playerRect.right > obstacleRect.left &&
