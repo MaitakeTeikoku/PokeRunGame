@@ -78,10 +78,58 @@
 
             if (gameRunning) {
                 var touch = event.touches[0];
-                playerX = touch.clientX - 25; // プレイヤーのX座標をタッチ位置に設定
-                playerY = touch.clientY - 25; // プレイヤーのY座標をタッチ位置に設定
-                updatePlayerPosition(); // プレイヤーの位置を更新
+                var targetX = touch.clientX - 25; // 移動先のX座標を取得
+                var targetY = touch.clientY - 25; // 移動先のY座標を取得
+
+                movePlayerSmoothly(targetX, targetY); // 滑らかな移動関数を呼び出す
             }
+        }
+
+        function movePlayerSmoothly(targetX, targetY) {
+            var player = document.getElementById("player");
+            var playerWidth = player.offsetWidth;
+            var playerHeight = player.offsetHeight;
+            var offsetX = playerWidth / 2; // Playerの中心座標を指の位置からオフセット
+            var offsetY = playerHeight / 2; // Playerの中心座標を指の位置からオフセット
+            var startX = playerX + offsetX; // 現在のX座標（中心座標）
+            var startY = playerY + offsetY; // 現在のY座標（中心座標）
+            var distanceX = targetX - startX; // 移動量のX成分
+            var distanceY = targetY - startY; // 移動量のY成分
+            var duration = 500; // 移動の所要時間（ミリ秒）
+            var startTime = null;
+
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                var elapsedTime = timestamp - startTime;
+                var progress = Math.min(elapsedTime / duration, 1); // 進行度（0～1）
+                var easeProgress = easeInOutQuad(progress); // イージング関数を適用
+
+                var offsetXProgress = distanceX * easeProgress; // X座標の進行度に応じたオフセット
+                var offsetYProgress = distanceY * easeProgress; // Y座標の進行度に応じたオフセット
+
+                playerX = targetX - offsetXProgress - offsetX; // イージングを考慮したX座標を計算
+                playerY = targetY - offsetYProgress - offsetY; // イージングを考慮したY座標を計算
+
+                updatePlayerPosition(); // プレイヤーの位置を更新
+                checkCollision();
+
+                if (progress < 1) {
+                    requestAnimationFrame(step); // 次のステップを実行
+                } else {
+                    // 移動が完了したら最終位置を設定
+                    playerX = targetX - offsetX;
+                    playerY = targetY - offsetY;
+                    updatePlayerPosition();
+                }
+            }
+
+            requestAnimationFrame(step); // 最初のステップを実行
+        }
+
+        // イージング関数
+        function easeInOutQuad(t) {
+            // t: 0～1の進行度
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
         }
 
         function updatePlayerPosition() {
