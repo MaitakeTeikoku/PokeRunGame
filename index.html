@@ -8,7 +8,7 @@
             position: absolute;
             width: 50px;
             height: 50px;
-            background-color: #F2F2F2;
+            background-color: rgba(225, 225, 225, 0.5);
             bottom: 0;
             /* 初期位置を画面下部に設定 */
         }
@@ -17,8 +17,22 @@
             position: absolute;
             width: 50px;
             height: 50px;
-            background-color: #F2F2F2;
+            background-color: rgba(225, 225, 225, 0.5);
             top: -50px;
+            z-index: -1;
+            /* ボタンよりも下に配置 */
+        }
+
+        .container {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            /* 障害物よりも上に配置 */
         }
     </style>
 </head>
@@ -26,7 +40,10 @@
 <body>
     <img id="player" src="" alt="Player">
     <div id="score">Score: 0</div>
-    <button id="startButton">Start</button>
+    <div class="container">
+        <button id="startButton">Start</button>
+        <button id="resetButton" onclick="window.location.reload();">Reset</button>
+    </div>
 
     <script>
         var playerX = 100;
@@ -39,14 +56,14 @@
         var maxObstacles = 5; // 最大障害物数を設定
         var obstacleMinDelay = 5000; // 障害物が出現する最小遅延時間（ミリ秒）
         var obstacleMaxDelay = 10000; // 障害物が出現する最大遅延時間（ミリ秒）
+        var obstacleMinRate = 0.1; // 障害物の最小サイズ
+        var obstacleMaxRate = 0.3; // 障害物の最大サイズ
 
-        window.addEventListener("devicemotion", handleMotionEvent, true);
 
-        function handleMotionEvent(event) {
+        function handleMouseMove(event) {
             if (gameRunning) {
-                var touch = event.touches[0];
-                playerX = touch.clientX - 25; // プレイヤーのX座標をタッチ位置に設定
-                playerY = touch.clientY - 25; // プレイヤーのY座標をタッチ位置に設定
+                playerX = event.clientX - 25; // プレイヤーのX座標をマウス位置に設定
+                playerY = event.clientY - 25; // プレイヤーのY座標をマウス位置に設定
                 updatePlayerPosition(); // プレイヤーの位置を更新
                 checkCollision();
             }
@@ -68,7 +85,7 @@
             player.style.left = playerX + "px";
             player.style.top = playerY + "px";
         }
-        
+
         function createObstacle() {
 
             if (obstacles.length >= maxObstacles) {
@@ -82,6 +99,13 @@
 
             obstacle.style.left = obstacleX + "px";
             obstacle.style.top = obstacleY + "px";
+
+            var screenWidth = window.innerWidth;
+            var minObstacleSize = screenWidth * obstacleMinRate;
+            var maxObstacleSize = screenWidth * obstacleMaxRate;
+            var obstacleSize = Math.floor(Math.random() * (maxObstacleSize - minObstacleSize + 1)) + minObstacleSize;
+            obstacle.style.width = obstacleSize + "px";
+            obstacle.style.height = obstacleSize + "px";
 
             // ランダムな画像のURLを選択
             obstacle.src = getRandomImageURL();
@@ -162,14 +186,17 @@
 
         function startGame() {
             if (!gameRunning) {
+                document.getElementById("player").style.display = "block";
                 gameRunning = true;
                 // タッチイベントを登録
-                document.addEventListener("touchstart", handleTouchStart);
                 document.addEventListener("touchmove", handleTouchMove);
                 score = 0;
                 document.getElementById("score").textContent = "Score: " + score;
                 document.getElementById("startButton").disabled = true;
-
+                document.getElementById("resetButton").disabled = true;
+                // Startボタンを非表示にする
+                document.getElementById("startButton").style.display = "none";
+                document.getElementById("resetButton").style.display = "none";
                 // ランダムなプレイヤー画像URLを取得して設定
                 var playerImageURL = getRandomPlayerImageURL();
                 document.getElementById("player").src = playerImageURL;
@@ -189,8 +216,11 @@
         function gameOver() {
             gameRunning = false;
             cancelAnimationFrame(gameInterval);
+            document.getElementById("resetButton").disabled = false;
+            document.getElementById("startButton").style.display = "block";
+            document.getElementById("resetButton").style.display = "block";
+
             alert("Game Over!");
-            document.getElementById("startButton").disabled = false;
         }
 
         function resetObstacle(obstacle) {
@@ -206,7 +236,12 @@
         }
 
 
+
         document.getElementById("startButton").addEventListener("click", startGame);
+        // マウスイベントリスナーとしてhandleMouseMove関数を登録
+        document.addEventListener("mousemove", handleMouseMove);
+
+        document.getElementById("player").style.display = "none";
     </script>
 </body>
 
