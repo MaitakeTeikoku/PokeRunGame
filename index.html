@@ -2,7 +2,7 @@
 <html lang="ja">
 
 <head>
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport">
     <title>PokeRunGame</title>
     <style>
         body {
@@ -121,7 +121,6 @@
                     playerX = targetX - offsetX;
                     playerY = targetY - offsetY;
                     updatePlayerPosition();
-                    updateCollisionRect();
                 }
             }
 
@@ -138,19 +137,6 @@
             var player = document.getElementById("player");
             player.style.left = playerX + "px";
             player.style.top = playerY + "px";
-        }
-
-        function updateCollisionRect() {
-            var player = document.getElementById("player");
-            var playerRect = player.getBoundingClientRect();
-
-            // 当たり判定の位置を更新
-            player.collisionRect = {
-                left: playerRect.left,
-                top: playerRect.top,
-                right: playerRect.right,
-                bottom: playerRect.bottom
-            };
         }
 
         function createObstacle() {
