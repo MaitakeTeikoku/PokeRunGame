@@ -44,10 +44,6 @@
 
 <body oncontextmenu="return false;">
     <img id="player" src="" alt="Player">
-    <div id="position-container">
-        <span id="x-position"></span>
-        <span id="y-position"></span>
-    </div>
     <div id="score">Score: 0</div>
     <div class="container">
         <button id="startButton" onclick="startGame();">Start</button>
@@ -186,11 +182,6 @@
         function checkCollision() {
             var player = document.getElementById("player");
             var playerRect = player.getBoundingClientRect();
-            // 位置情報を表示する要素に反映
-            var xPositionElement = document.getElementById('x-position');
-            var yPositionElement = document.getElementById('y-position');
-            xPositionElement.textContent = 'left: ' + playerRect.left;
-            yPositionElement.textContent = 'top: ' + playerRect.top;
 
             for (var i = 0; i < obstacles.length; i++) {
                 var obstacle = obstacles[i];
