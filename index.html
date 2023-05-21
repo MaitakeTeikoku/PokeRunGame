@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,11 +42,11 @@
     </style>
 </head>
 
-<body oncontextmenu="return false;" ontouchstart="event.preventDefault();" ontouchmove="event.preventDefault();">
+<body oncontextmenu="return false;">
     <img id="player" src="" alt="Player">
     <div id="score">Score: 0</div>
     <div class="container">
-        <button id="startButton">Start</button>
+        <button id="startButton" onclick="startGame();">Start</button>
         <button id="resetButton" onclick="window.location.reload();">Reset</button>
     </div>
 
@@ -262,9 +262,12 @@
             if (!gameRunning) {
                 document.getElementById("player").style.display = "block";
                 gameRunning = true;
+                score = 0;
                 // タッチイベントを登録
                 document.addEventListener("touchmove", handleTouchMove);
-                score = 0;
+                // マウスイベントリスナーとしてhandleMouseMove関数を登録
+                document.addEventListener("mousemove", handleMouseMove);
+
                 document.getElementById("score").textContent = "Score: " + score;
                 document.getElementById("startButton").disabled = true;
                 document.getElementById("resetButton").disabled = true;
@@ -299,10 +302,6 @@
         }
 
 
-
-        document.getElementById("startButton").addEventListener("click", startGame);
-        // マウスイベントリスナーとしてhandleMouseMove関数を登録
-        document.addEventListener("mousemove", handleMouseMove);
 
         document.getElementById("player").style.display = "none";
     </script>
