@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tilt Game</title>
+    <style>
+        #player {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #F2F2F2;
+            bottom: 0;
+            /* 初期位置を画面下部に設定 */
+        }
+
+        .obstacle {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #F2F2F2;
+            top: -50px;
+        }
+    </style>
+</head>
+
+<body>
+    <img id="player" src="" alt="Player">
+    <div id="score">Score: 0</div>
+    <button id="startButton">Start</button>
+
+    <script>
+        var playerX = 100;
+        var playerY = window.innerHeight - 50; // 初期位置を画面下部に設定
+        var score = 0;
+        var gameRunning = false;
+        var gameInterval;
+        var obstacles = [];
+        var obstacleSpeed = 10; // 障害物の速度を設定
+        var maxObstacles = 5; // 最大障害物数を設定
+        var obstacleMinDelay = 5000; // 障害物が出現する最小遅延時間（ミリ秒）
+        var obstacleMaxDelay = 10000; // 障害物が出現する最大遅延時間（ミリ秒）
+
+        window.addEventListener("devicemotion", handleMotionEvent, true);
+
+        document.addEventListener("touchstart", function () {
+            if (typeof DeviceMotionEvent.requestPermission === "function") {
+                DeviceMotionEvent.requestPermission()
+                    .then(function (permissionState) {
+                        if (permissionState === "granted") {
+                            window.addEventListener("devicemotion", handleMotionEvent, true);
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                window.addEventListener("devicemotion", handleMotionEvent, true);
+            }
+        });
+
+        function handleMotionEvent(event) {
+            if (gameRunning) {
+                var acceleration = event.accelerationIncludingGravity;
+
+                playerX += acceleration.x;
+                playerY += acceleration.y;
+
+                document.getElementById("player").style.left = playerX + "px";
+                document.getElementById("player").style.top = playerY + "px";
+
+                checkCollision();
+            }
+        }
+
+        function createObstacle() {
+
+            if (obstacles.length >= maxObstacles) {
+                return; // 最大障害物数に達した場合は新たな障害物を生成しない
+            }
+            var obstacle = document.createElement("img");
+            obstacle.className = "obstacle";
+
+            var obstacleX = Math.floor(Math.random() * (window.innerWidth - 50));
+            var obstacleY = -50; // 初期位置を画面上部に設定
+
+            obstacle.style.left = obstacleX + "px";
+            obstacle.style.top = obstacleY + "px";
+
+            // ランダムな画像のURLを選択
+            obstacle.src = getRandomImageURL();
+
+            document.body.appendChild(obstacle);
+            obstacles.push(obstacle);
+
+            var delay = Math.random() * (obstacleMaxDelay - obstacleMinDelay) + obstacleMinDelay;
+            setTimeout(createObstacle, delay); // 次の障害物を生成するためのタイマーをセット
+        }
+
+        function getRandomImageURL() {
+            // ランダムな画像のURLを返す関数
+            var numDex = 1010;
+            var numRandom = Math.floor(Math.random() * numDex);
+            var imageURL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + numRandom + ".png";
+
+
+            return imageURL;
+        }
+
+        function checkCollision() {
+            var playerRect = document.getElementById("player").getBoundingClientRect();
+            var obstacles = document.getElementsByClassName("obstacle");
+
+            for (var i = 0; i < obstacles.length; i++) {
+                var obstacleRect = obstacles[i].getBoundingClientRect();
+
+                if (playerRect.left < obstacleRect.right &&
+                    playerRect.right > obstacleRect.left &&
+                    playerRect.top < obstacleRect.bottom &&
+                    playerRect.bottom > obstacleRect.top) {
+                    gameOver();
+                    break;
+                }
+            }
+        }
+
+        function increaseScore() {
+            score++;
+            document.getElementById("score").textContent = "Score: " + score;
+        }
+
+        function gameLoop() {
+            createObstacle();
+            increaseScore();
+
+            var obstacles = document.getElementsByClassName("obstacle");
+            var playerRect = player.getBoundingClientRect();
+            for (var i = 0; i < obstacles.length; i++) {
+                var obstacle = obstacles[i];
+                var obstacleY = parseInt(obstacle.style.top);
+                var obstacleRect = obstacle.getBoundingClientRect();
+
+                obstacleY += obstacleSpeed; // 障害物の速度を適用
+                obstacle.style.top = obstacleY + "px";
+                if (obstacleY > window.innerHeight) {
+                    resetObstacle(obstacle); // 障害物を再配置する
+                    obstacle.parentNode.removeChild(obstacle); // 障害物を削除する
+                    i--; // 配列の要素が1つ削除されたので、インデックスを調整する
+                }
+                // プレイヤーと障害物の衝突判定
+                if (
+                    playerRect.left < obstacleRect.right &&
+                    playerRect.right > obstacleRect.left &&
+                    playerRect.top < obstacleRect.bottom &&
+                    playerRect.bottom > obstacleRect.top
+                ) {
+                    gameOver(); // 衝突した場合はゲームオーバー
+                    return; // ゲームオーバー時にループを終了する
+                }
+            }
+
+            if (gameRunning) {
+                gameInterval = requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function startGame() {
+            if (!gameRunning) {
+                // 既にモーションイベントが登録されている場合は削除する
+                window.removeEventListener("devicemotion", handleMotionEvent, true);
+                gameRunning = true;
+                score = 0;
+                document.getElementById("score").textContent = "Score: " + score;
+                document.getElementById("startButton").disabled = true;
+
+                // ランダムなプレイヤー画像URLを取得して設定
+                var playerImageURL = getRandomPlayerImageURL();
+                document.getElementById("player").src = playerImageURL;
+
+                gameLoop();
+            }
+        }
+
+        function getRandomPlayerImageURL() {
+            var numImages = 1010; // プレイヤー画像の枚数
+            var randomIndex = Math.floor(Math.random() * numImages) + 1; // 1から枚数までのランダムな数を生成
+            var imageURL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/" + randomIndex + ".png"; // 画像ファイルのパスを生成
+
+            return imageURL;
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(gameInterval);
+            alert("Game Over!");
+            document.getElementById("startButton").disabled = false;
+        }
+
+        function resetObstacle(obstacle) {
+            var index = obstacles.indexOf(obstacle);
+            if (index > -1) {
+                obstacles.splice(index, 1); // 配列から障害物を削除する
+            }
+            var obstacleX = Math.floor(Math.random() * (window.innerWidth - obstacle.offsetWidth));
+            var obstacleY = -obstacle.offsetHeight;
+
+            obstacle.style.left = obstacleX + "px";
+            obstacle.style.top = obstacleY + "px";
+        }
+
+
+        document.getElementById("startButton").addEventListener("click", startGame);
+    </script>
+</body>
+
+</html>
