@@ -207,12 +207,11 @@
 
         function increaseScore() {
             score++;
-            document.getElementById("score").textContent = "Score: " + score;
+            document.getElementById("score").textContent = "Score: " + (score / maxObstacles);
         }
 
         function gameLoop() {
             createObstacle();
-            increaseScore();
 
             var obstacles = document.getElementsByClassName("obstacle");
             var playerRect = player.getBoundingClientRect();
@@ -243,6 +242,20 @@
             if (gameRunning) {
                 gameInterval = requestAnimationFrame(gameLoop);
             }
+        }
+
+        function resetObstacle(obstacle) {
+            var index = obstacles.indexOf(obstacle);
+            if (index > -1) {
+                obstacles.splice(index, 1); // 配列から障害物を削除する
+            }
+            var obstacleX = Math.floor(Math.random() * (window.innerWidth - obstacle.offsetWidth));
+            var obstacleY = -obstacle.offsetHeight;
+
+            obstacle.style.left = obstacleX + "px";
+            obstacle.style.top = obstacleY + "px";
+
+            increaseScore();
         }
 
         function startGame() {
@@ -283,18 +296,6 @@
             document.getElementById("resetButton").style.display = "block";
 
             alert("Game Over!");
-        }
-
-        function resetObstacle(obstacle) {
-            var index = obstacles.indexOf(obstacle);
-            if (index > -1) {
-                obstacles.splice(index, 1); // 配列から障害物を削除する
-            }
-            var obstacleX = Math.floor(Math.random() * (window.innerWidth - obstacle.offsetWidth));
-            var obstacleY = -obstacle.offsetHeight;
-
-            obstacle.style.left = obstacleX + "px";
-            obstacle.style.top = obstacleY + "px";
         }
 
 
