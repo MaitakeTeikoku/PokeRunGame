@@ -181,7 +181,14 @@
         }
 
         function checkCollision() {
-            var playerRect = document.getElementById("player").getBoundingClientRect();
+            var player = document.getElementById("player");
+            var playerRect = {
+                    left: player.offsetLeft,
+                    top: player.offsetTop,
+                    right: player.offsetLeft + player.offsetWidth,
+                    bottom: player.offsetTop + player.offsetHeight
+                };
+            
             var obstacles = document.getElementsByClassName("obstacle");
 
             for (var i = 0; i < obstacles.length; i++) {
