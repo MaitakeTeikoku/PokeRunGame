@@ -2,7 +2,7 @@
 <html lang="ja">
 
 <head>
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"">
     <title>PokeRunGame</title>
     <style>
         body {
@@ -96,7 +96,7 @@
             var startY = playerY + offsetY; // 現在のY座標（中心座標）
             var distanceX = targetX - startX; // 移動量のX成分
             var distanceY = targetY - startY; // 移動量のY成分
-            var duration = 500; // 移動の所要時間（ミリ秒）
+            var duration = 0; // 移動の所要時間（ミリ秒）
             var startTime = null;
 
             function step(timestamp) {
@@ -140,7 +140,6 @@
         }
 
         function createObstacle() {
-
             if (obstacles.length >= maxObstacles) {
                 return; // 最大障害物数に達した場合は新たな障害物を生成しない
             }
