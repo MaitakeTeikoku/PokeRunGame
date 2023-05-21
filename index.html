@@ -182,15 +182,15 @@
 
         function checkCollision() {
             var playerRect = document.getElementById("player").getBoundingClientRect();
-            var obstacleRect = {
-                left: obstacle.offsetLeft,
-                top: obstacle.offsetTop,
-                right: obstacle.offsetLeft + obstacle.offsetWidth,
-                bottom: obstacle.offsetTop + obstacle.offsetHeight
-            };
+            var obstacles = document.getElementsByClassName("obstacle");
 
             for (var i = 0; i < obstacles.length; i++) {
-                var obstacleRect = obstacles[i].getBoundingClientRect();
+                var obstacleRect = {
+                    left: obstacle.offsetLeft,
+                    top: obstacle.offsetTop,
+                    right: obstacle.offsetLeft + obstacle.offsetWidth,
+                    bottom: obstacle.offsetTop + obstacle.offsetHeight
+                };
 
                 if (playerRect.left < obstacleRect.right &&
                     playerRect.right > obstacleRect.left &&
