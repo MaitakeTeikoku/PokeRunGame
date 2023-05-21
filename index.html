@@ -190,7 +190,9 @@
                     playerRect.right > obstacleRect.left &&
                     playerRect.top < obstacleRect.bottom &&
                     playerRect.bottom > obstacleRect.top) {
-                    gameOver();
+                    if (gameRunning) { // ゲームが実行中である場合のみゲームオーバーとする
+                        gameOver();
+                    }
                     break;
                 }
             }
@@ -267,6 +269,7 @@
 
         function gameOver() {
             gameRunning = false;
+            gameInterval = null; // ゲームループのインターバルをリセット
             cancelAnimationFrame(gameInterval);
             document.getElementById("resetButton").disabled = false;
             document.getElementById("startButton").style.display = "block";
