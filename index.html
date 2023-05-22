@@ -274,8 +274,8 @@
             score++;
             document.getElementById("score").textContent = "Score: " + score;
             obstacleSpeed += 0.02; // 障害物の速度を設定
-            maxObstacles = 2 + Math.floor(score / 40); // 最大障害物数を設定
-            document.getElementById("obstacleSpeed").textContent = "ObstacleSpeed: " + obstacleSpeed.toFixed(2);
+            maxObstacles = 2 + Math.floor(score / 50); // 最大障害物数を設定
+            document.getElementById("obstacleSpeed").textContent = "ObstacleSpeed: " + obstacleSpeed.toFixed(0);
             document.getElementById("maxObstacles").textContent = "MaxObstacles: " + maxObstacles.toFixed(0);
         }
 
