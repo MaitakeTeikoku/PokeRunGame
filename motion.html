@@ -101,10 +101,10 @@
                 playerY += event.beta;
 
                 // ゲーム画面内にプレイヤーを制限
-                if (playerX < 0) playerX = 0;
-                if (playerX > window.innerWidth) playerX = window.innerWidth;
-                if (playerY < 0) playerY = 0;
-                if (playerY > window.innerHeight) playerY = window.innerHeight;
+                if (playerX < 25) playerX = 25;
+                if (playerX > window.innerWidth - 25) playerX = window.innerWidth - 25;
+                if (playerY < 25) playerY = 25;
+                if (playerY > window.innerHeight - 25) playerY = window.innerHeight - 25;
 
                 updatePlayerPosition(); // プレイヤーの位置を更新
                 checkCollision();
