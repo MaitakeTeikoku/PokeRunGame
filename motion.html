@@ -47,7 +47,8 @@
 </head>
 
 <body oncontextmenu="return false;">
-    <button id="location" onclick="location.href='./motion.html'">ジャイロ操作</button>
+    <button id="location" onclick="location.href='./index.html'">タッチ操作</button>
+    <button id="requestDeviceSensor" onclick="clickRequestDeviceSensor();">センサーの有効化</button>
     <img id="player" src="" alt="Player">
     <div id="score">Score: 0</div>
     <div id="obstacleSpeed">Speed: 5</div>
@@ -72,28 +73,39 @@
 
 
         document.getElementById("player").style.display = "none";
+        document.getElementById("startButton").disabled = true;
 
 
-        
-        function handleMouseMove(event) {
-            if (gameRunning) {
-                playerX = event.clientX - 25; // プレイヤーのX座標をマウス位置に設定
-                playerY = event.clientY - 25; // プレイヤーのY座標をマウス位置に設定
-                updatePlayerPosition(); // プレイヤーの位置を更新
-                checkCollision();
+
+        //. DeviceOrientationEvent オブジェクトが有効な環境か？　をチェック
+        if (window.DeviceOrientationEvent) {
+            //. iOS13 以上であれば DeviceOrientationEvent.requestPermission 関数が定義されているので、ここで条件分岐
+            if (DeviceOrientationEvent.requestPermission && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                //. iOS 13 以上の場合、
+                //. 画面上部に「センサーの有効化」ボタンを表示
+                document.getElementById("requestDeviceSensor").style.display = "block";
+            } else {
+                //. Android または iOS 13 未満の場合、
+                //. DeviceOrientationEvent オブジェクトが有効な場合のみ、deviceorientation イベント発生時に deviceOrientaion 関数がハンドリングするよう登録
+                window.addEventListener("deviceorientation", deviceOrientation);
             }
         }
 
 
-
-        function handleTouchMove(event) {
-            event.preventDefault(); // デフォルトのスクロール動作を無効化
-
+        
+        //. deviceorientation イベントハンドラ
+        function deviceOrientation(event) {
             if (gameRunning) {
-                var touch = event.touches[0];
+                // センサーデータからプレイヤーの位置を計算
+                playerX += event.gamma;
+                playerY += event.beta;
 
-                playerX = touch.clientX - 25;
-                playerY = touch.clientY - 25;
+                // ゲーム画面内にプレイヤーを制限
+                if (playerX < 0) playerX = 0;
+                if (playerX > window.innerWidth) playerX = window.innerWidth;
+                if (playerY < 0) playerY = 0;
+                if (playerY > window.innerHeight) playerY = window.innerHeight;
+
                 updatePlayerPosition(); // プレイヤーの位置を更新
                 checkCollision();
             }
@@ -283,6 +295,22 @@
             document.getElementById("location").style.display = "block";
 
             alert("Game Over!");
+        }
+
+        function clickRequestDeviceSensor() {
+            //. ユーザーに「許可」を求めるダイアログを表示
+            DeviceOrientationEvent.requestPermission()
+                .then(function (response) {
+                    if (response === 'granted') {
+                        //. 許可された場合のみイベントハンドラを追加できる
+                        window.addEventListener("deviceorientation", deviceOrientation);
+                        //. 画面上部のボタンを消す
+                        document.getElementById("requestDeviceSensor").style.display = "none";
+                        document.getElementById("startButton").disabled = false;
+                    }
+                }).catch(function (e) {
+                    document.getElementById("requestDeviceSensor").textContent = e;
+                });
         }
     </script>
 </body>
