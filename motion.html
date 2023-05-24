@@ -43,16 +43,23 @@
             z-index: 1;
             /* 障害物よりも上に配置 */
         }
+
+        #requestDeviceSensor {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 
 <body oncontextmenu="return false;">
     <button id="location" onclick="location.href='./index.html'">タッチ操作</button>
-    <button id="requestDeviceSensor" onclick="clickRequestDeviceSensor();">センサーの有効化</button>
     <img id="player" src="" alt="Player">
     <div id="score">Score: 0</div>
     <div id="obstacleSpeed">Speed: 7</div>
     <div id="maxObstacles">Pokemon: 2</div>
+    <button id="requestDeviceSensor" onclick="clickRequestDeviceSensor();">センサーの有効化</button>
     <div class="container">
         <button id="startButton" onclick="startGame();">Start</button>
         <button id="resetButton" onclick="window.location.reload();">Reset</button>
