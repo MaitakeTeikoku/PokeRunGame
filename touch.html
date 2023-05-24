@@ -43,24 +43,17 @@
             z-index: 1;
             /* 障害物よりも上に配置 */
         }
-
-        #requestDeviceSensor {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
     </style>
 </head>
 
 <body oncontextmenu="return false;">
-    <button id="location" onclick="location.href='./index.html'">タッチまたはマウス操作に切り替え</button>
+    <button id="location" onclick="location.href='./motion.html'">ジャイロ操作に切り替え</button>
     <img id="player" src="" alt="Player">
     <div id="score">Score: 0</div>
     <div id="obstacleSpeed">Speed: 7</div>
-    <div id="maxObstacles">Pokemon: 2</div>
+    <div id="maxObstacles">Pokemon: 3</div>
     <div class="container">
-        <button id="startButton" onclick="clickRequestDeviceSensor();">Start</button>
+        <button id="startButton" onclick="startGame();">Start</button>
         <button id="resetButton" onclick="window.location.reload();">Reset</button>
     </div>
 
@@ -72,46 +65,34 @@
         var gameInterval;
         var obstacles = [];
         var obstacleSpeed = 7; // 障害物の速度を設定
-        var maxObstacles = 2; // 最大障害物数を設定
+        var maxObstacles = 3; // 最大障害物数を設定
         var obstacleMinRate = 0.1; // 障害物の最小サイズ
         var obstacleMaxRate = 0.2; // 障害物の最大サイズ
 
 
 
         document.getElementById("player").style.display = "none";
-        document.getElementById("startButton").disabled = true;
 
 
-        //. DeviceOrientationEvent オブジェクトが有効な環境か？　をチェック
-        if (window.DeviceOrientationEvent) {
-            document.getElementById("startButton").disabled = false;
-            //. iOS13 以上であれば DeviceOrientationEvent.requestPermission 関数が定義されているので、ここで条件分岐
-            if (DeviceOrientationEvent.requestPermission && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                //. iOS 13 以上の場合、
-            } else {
-                //. Android または iOS 13 未満の場合、
-                //. DeviceOrientationEvent オブジェクトが有効な場合のみ、deviceorientation イベント発生時に deviceOrientaion 関数がハンドリングするよう登録
-                window.addEventListener("deviceorientation", deviceOrientation);
+
+        function handleMouseMove(event) {
+            if (gameRunning) {
+                playerX = event.clientX - 25; // プレイヤーのX座標をマウス位置に設定
+                playerY = event.clientY - 25; // プレイヤーのY座標をマウス位置に設定
+                updatePlayerPosition(); // プレイヤーの位置を更新
             }
-        } else {
-            document.getElementById("score").textContent = "Error: " + "傾きセンサが使えるデバイスやブラウザで閲覧してください。";
         }
 
 
 
-        //. deviceorientation イベントハンドラ
-        function deviceOrientation(event) {
+        function handleTouchMove(event) {
+            event.preventDefault(); // デフォルトのスクロール動作を無効化
+
             if (gameRunning) {
-                // センサーデータからプレイヤーの位置を計算
-                playerX += event.gamma;
-                playerY += event.beta;
+                var touch = event.touches[0];
 
-                // ゲーム画面内にプレイヤーを制限
-                if (playerX < 0) playerX = 0;
-                if (playerX > window.innerWidth) playerX = window.innerWidth;
-                if (playerY < 0) playerY = 0;
-                if (playerY > window.innerHeight) playerY = window.innerHeight;
-
+                playerX = touch.clientX - 25;
+                playerY = touch.clientY - 25;
                 updatePlayerPosition(); // プレイヤーの位置を更新
             }
         }
@@ -223,7 +204,7 @@
             score++;
             document.getElementById("score").textContent = "Score: " + score;
             obstacleSpeed += 0.05; // 障害物の速度を設定
-            maxObstacles = 2 + Math.floor(score / 40); // 最大障害物数を設定
+            maxObstacles = 3 + Math.floor(score / 30); // 最大障害物数を設定
             document.getElementById("obstacleSpeed").textContent = "Speed: " + obstacleSpeed.toFixed(0);
             document.getElementById("maxObstacles").textContent = "Pokemon: " + maxObstacles.toFixed(0);
         }
@@ -235,9 +216,10 @@
                 document.getElementById("player").style.display = "block";
                 gameRunning = true;
                 score = 0;
-
-                //. 許可された場合のみイベントハンドラを追加できる
-                window.addEventListener("deviceorientation", deviceOrientation);
+                // タッチイベントを登録
+                document.addEventListener("touchmove", handleTouchMove);
+                // マウスイベントリスナーとしてhandleMouseMove関数を登録
+                document.addEventListener("mousemove", handleMouseMove);
 
                 document.getElementById("score").textContent = "Score: " + score;
                 document.getElementById("startButton").disabled = true;
@@ -273,28 +255,6 @@
             document.getElementById("location").style.display = "block";
 
             alert("Game Over!");
-        }
-
-
-
-        function clickRequestDeviceSensor() {
-            //. iOS13 以上であれば DeviceOrientationEvent.requestPermission 関数が定義されているので、ここで条件分岐
-            if (DeviceOrientationEvent.requestPermission && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                //. iOS 13 以上の場合、
-                //. ユーザーに「許可」を求めるダイアログを表示
-                DeviceOrientationEvent.requestPermission()
-                    .then(function (response) {
-                        if (response === 'granted') {
-                            startGame();
-                        }
-                    }).catch(function (e) {
-                        document.getElementById("score").textContent = "Error: " + e;
-                    });
-            } else {
-                //. Android または iOS 13 未満の場合、
-                startGame();
-            }
-
         }
     </script>
 </body>
