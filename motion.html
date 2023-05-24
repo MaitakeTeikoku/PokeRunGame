@@ -92,7 +92,7 @@
         }
 
 
-        
+
         //. deviceorientation イベントハンドラ
         function deviceOrientation(event) {
             if (gameRunning) {
@@ -297,6 +297,8 @@
             alert("Game Over!");
         }
 
+
+
         function clickRequestDeviceSensor() {
             //. ユーザーに「許可」を求めるダイアログを表示
             DeviceOrientationEvent.requestPermission()
@@ -307,6 +309,7 @@
                         //. 画面上部のボタンを消す
                         document.getElementById("requestDeviceSensor").style.display = "none";
                         document.getElementById("startButton").disabled = false;
+                        document.getElementById("startButton").textContent = resopnse;
                     }
                 }).catch(function (e) {
                     document.getElementById("requestDeviceSensor").textContent = e;
