@@ -50,8 +50,8 @@
     <button id="location" onclick="location.href='./motion.html'">ジャイロ操作</button>
     <img id="player" src="" alt="Player">
     <div id="score">Score: 0</div>
-    <div id="obstacleSpeed">Speed: 5</div>
-    <div id="maxObstacles">Pokemon: 2</div>
+    <div id="obstacleSpeed">Speed: 7</div>
+    <div id="maxObstacles">Pokemon: 3</div>
     <div class="container">
         <button id="startButton" onclick="startGame();">Start</button>
         <button id="resetButton" onclick="window.location.reload();">Reset</button>
@@ -64,8 +64,8 @@
         var gameRunning = false;
         var gameInterval;
         var obstacles = [];
-        var obstacleSpeed = 5; // 障害物の速度を設定
-        var maxObstacles = 2; // 最大障害物数を設定
+        var obstacleSpeed = 7; // 障害物の速度を設定
+        var maxObstacles = 3; // 最大障害物数を設定
         var obstacleMinRate = 0.1; // 障害物の最小サイズ
         var obstacleMaxRate = 0.2; // 障害物の最大サイズ
 
@@ -74,13 +74,12 @@
         document.getElementById("player").style.display = "none";
 
 
-        
+
         function handleMouseMove(event) {
             if (gameRunning) {
                 playerX = event.clientX - 25; // プレイヤーのX座標をマウス位置に設定
                 playerY = event.clientY - 25; // プレイヤーのY座標をマウス位置に設定
                 updatePlayerPosition(); // プレイヤーの位置を更新
-                checkCollision();
             }
         }
 
@@ -95,7 +94,6 @@
                 playerX = touch.clientX - 25;
                 playerY = touch.clientY - 25;
                 updatePlayerPosition(); // プレイヤーの位置を更新
-                checkCollision();
             }
         }
 
@@ -148,33 +146,13 @@
 
 
 
-        function checkCollision() {
+        function gameLoop() {
+            createObstacle();
             var player = document.getElementById("player");
             var playerRect = player.getBoundingClientRect();
 
-            for (var i = 0; i < obstacles.length; i++) {
-                var obstacle = obstacles[i];
-                var obstacleRect = obstacle.getBoundingClientRect();
-
-                if (playerRect.left < obstacleRect.right &&
-                    playerRect.right > obstacleRect.left &&
-                    playerRect.top < obstacleRect.bottom &&
-                    playerRect.bottom > obstacleRect.top) {
-                    if (gameRunning) { // ゲームが実行中である場合のみゲームオーバーとする
-                        gameOver();
-                    }
-                    break;
-                }
-            }
-        }
-
-
-
-        function gameLoop() {
-            createObstacle();
-
             var obstacles = document.getElementsByClassName("obstacle");
-            var playerRect = player.getBoundingClientRect();
+
             for (var i = 0; i < obstacles.length; i++) {
                 var obstacle = obstacles[i];
                 var obstacleY = parseInt(obstacle.style.top);
@@ -225,8 +203,8 @@
         function increaseScore() {
             score++;
             document.getElementById("score").textContent = "Score: " + score;
-            obstacleSpeed += 0.02; // 障害物の速度を設定
-            maxObstacles = 2 + Math.floor(score / 50); // 最大障害物数を設定
+            obstacleSpeed += 0.05; // 障害物の速度を設定
+            maxObstacles = 3 + Math.floor(score / 30); // 最大障害物数を設定
             document.getElementById("obstacleSpeed").textContent = "Speed: " + obstacleSpeed.toFixed(0);
             document.getElementById("maxObstacles").textContent = "Pokemon: " + maxObstacles.toFixed(0);
         }
@@ -250,22 +228,16 @@
                 document.getElementById("startButton").style.display = "none";
                 document.getElementById("resetButton").style.display = "none";
                 document.getElementById("location").style.display = "none";
+
                 // ランダムなプレイヤー画像URLを取得して設定
-                var playerImageURL = getRandomPlayerImageURL();
-                document.getElementById("player").src = playerImageURL;
+                var numDex = 1010;
+                var numRandom = Math.floor(Math.random() * numDex);
+                var imageURL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/" + numRandom + ".png";
+
+                document.getElementById("player").src = imageURL;
 
                 gameLoop();
             }
-        }
-
-
-
-        function getRandomPlayerImageURL() {
-            var numImages = 1010; // プレイヤー画像の枚数
-            var randomIndex = Math.floor(Math.random() * numImages) + 1; // 1から枚数までのランダムな数を生成
-            var imageURL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/" + randomIndex + ".png"; // 画像ファイルのパスを生成
-
-            return imageURL;
         }
 
 
