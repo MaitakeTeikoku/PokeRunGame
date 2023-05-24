@@ -52,7 +52,7 @@
     <img id="player" src="" alt="Player">
     <div id="score">Score: 0</div>
     <div id="obstacleSpeed">Speed: 7</div>
-    <div id="maxObstacles">Pokemon: 3</div>
+    <div id="maxObstacles">Pokemon: 2</div>
     <div class="container">
         <button id="startButton" onclick="startGame();">Start</button>
         <button id="resetButton" onclick="window.location.reload();">Reset</button>
@@ -66,7 +66,7 @@
         var gameInterval;
         var obstacles = [];
         var obstacleSpeed = 7; // 障害物の速度を設定
-        var maxObstacles = 3; // 最大障害物数を設定
+        var maxObstacles = 2; // 最大障害物数を設定
         var obstacleMinRate = 0.1; // 障害物の最小サイズ
         var obstacleMaxRate = 0.2; // 障害物の最大サイズ
 
@@ -217,7 +217,7 @@
             score++;
             document.getElementById("score").textContent = "Score: " + score;
             obstacleSpeed += 0.05; // 障害物の速度を設定
-            maxObstacles = 3 + Math.floor(score / 30); // 最大障害物数を設定
+            maxObstacles = 2 + Math.floor(score / 40); // 最大障害物数を設定
             document.getElementById("obstacleSpeed").textContent = "Speed: " + obstacleSpeed.toFixed(0);
             document.getElementById("maxObstacles").textContent = "Pokemon: " + maxObstacles.toFixed(0);
         }
